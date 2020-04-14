@@ -1,12 +1,10 @@
 <title>Shreddit</title>
-<script type="text/javascript" src="./GlslCanvas.js"></script>
+<script type="text/javascript" src="https://rawgit.com/patriciogonzalezvivo/glslCanvas/master/dist/GlslCanvas.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
 
 <body>
     <canvas  data-fragment-url="shreddit.frag" width="100vw" height="100vh"></canvas>
-    <img src="dog.jpeg" alt="" style="display: none">
-
     <script>
         const canvas = document.querySelector('canvas')
         const sandbox = new GlslCanvas(canvas);
@@ -22,23 +20,14 @@
         }
 
         setTimeout(() => {
-            const img = document.querySelector('img')
-            sandbox.setUniform("u_tex0_size", img.naturalWidth, img.naturalHeight);
-            console.log(img.naturalWidth, img.naturalHeight)
-
+            sandbox.setUniform("u_tex0", "dog.jpg");
             // Assign .5 to "uniform float u_brightness"
-            sandbox.setUniform("u_tex0", img.src);
             sandbox.setUniform("uStepsX",20.);
             sandbox.setUniform("uStepsY",20.);
             sandbox.setUniform("uTimes",1.);
-        }, 500)
+        }, 1)
 
-        setInterval(() => {
-            const img = document.querySelector('img')
-            sandbox.setUniform("u_tex0_size", img.naturalWidth, img.naturalHeight);
-            console.log(img.naturalWidth, img.naturalHeight)
 
-        }, 500)
 
 
         addEventListener('mousemove', e => {
@@ -46,7 +35,6 @@
             sandbox.setUniform("uStepsY", Math.max(closest_odd( Math.floor((innerHeight - e.clientY) / 25)), 1));
             // sandbox.setUniform("uTimes", Math.max(closest_odd(Math.floor((innerHeight - e.clientY) / 100)), 1));
         })
-
 
         addEventListener('touchmove', e => {
             var touch = e.changedTouches[0];
@@ -63,8 +51,19 @@
             }
         })
 
-        canvas.addEventListener('drop', function () {
+        addEventListener('dragover', e => {
+            e.preventDefault();
+        })
 
+        addEventListener('drop', e => {
+            e.preventDefault();
+            const file = e.dataTransfer.items[0].getAsFile()
+            const reader = new FileReader()
+            reader.readAsDataURL(file) 
+            reader.onload = e => {
+                console.log(e.target.result)
+                sandbox.setUniform("u_tex0", e.target.result);
+            }
         })
 
 
