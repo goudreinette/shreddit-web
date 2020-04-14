@@ -1,0 +1,73 @@
+<title>Shreddit</title>
+<script type="text/javascript" src="./GlslCanvas.js"></script>
+
+
+<body>
+    <canvas  data-fragment-url="shreddit.frag" width="100vw" height="100vh"></canvas>
+    <img src="dog.jpeg" alt="" style="display: none">
+
+    <script>
+        const canvas = document.querySelector('canvas')
+        const sandbox = new GlslCanvas(canvas);
+
+        let mousePosition = [0,0]
+
+        addEventListener('load', resize)
+        addEventListener('resize', resize)
+
+        function resize() {
+            canvas.width = innerWidth/2
+            canvas.height = innerHeight/2
+        }
+
+        setTimeout(() => {
+            const img = document.querySelector('img')
+            sandbox.setUniform("u_tex0_size", img.naturalWidth, img.naturalHeight);
+            console.log(img.naturalWidth, img.naturalHeight)
+
+            // Assign .5 to "uniform float u_brightness"
+            sandbox.setUniform("u_tex0", img.src);
+            sandbox.setUniform("uSteps",20.);
+            sandbox.setUniform("uTimes",1.);
+        }, 1000)
+
+
+
+
+        addEventListener('mousemove', e => {
+            sandbox.setUniform("uSteps", Math.max(closest_odd(Math.floor(e.clientX / 25)), 1));
+            sandbox.setUniform("uTimes", Math.max(closest_odd(Math.floor((innerHeight - e.clientY) / 100)), 1));
+        })
+
+        addEventListener('keypress', e => {
+            if (e.code == 'Space') {
+                var link = document.createElement('a');
+                link.download = 'filename.png';
+                link.href = document.querySelector('canvas').toDataURL("image/png")
+                link.click();
+            }
+        })
+
+        canvas.addEventListener('drop', function () {
+
+        })
+
+
+        // Utils
+        function closest_odd(n) {
+            if (n % 2 == 0) {
+                return n
+            } else {
+                return n - 1
+            }
+        }
+    </script>
+
+
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+
+</body>
