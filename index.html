@@ -1,5 +1,6 @@
 <title>Shreddit</title>
 <script type="text/javascript" src="./GlslCanvas.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
 
 <body>
@@ -27,16 +28,30 @@
 
             // Assign .5 to "uniform float u_brightness"
             sandbox.setUniform("u_tex0", img.src);
-            sandbox.setUniform("uSteps",20.);
+            sandbox.setUniform("uStepsX",20.);
+            sandbox.setUniform("uStepsY",20.);
             sandbox.setUniform("uTimes",1.);
-        }, 1000)
+        }, 500)
 
+        setInterval(() => {
+            const img = document.querySelector('img')
+            sandbox.setUniform("u_tex0_size", img.naturalWidth, img.naturalHeight);
+            console.log(img.naturalWidth, img.naturalHeight)
 
+        }, 500)
 
 
         addEventListener('mousemove', e => {
-            sandbox.setUniform("uSteps", Math.max(closest_odd(Math.floor(e.clientX / 25)), 1));
-            sandbox.setUniform("uTimes", Math.max(closest_odd(Math.floor((innerHeight - e.clientY) / 100)), 1));
+            sandbox.setUniform("uStepsX", Math.max(closest_odd( Math.floor((e.clientX) / 25)), 1));
+            sandbox.setUniform("uStepsY", Math.max(closest_odd( Math.floor((innerHeight - e.clientY) / 25)), 1));
+            // sandbox.setUniform("uTimes", Math.max(closest_odd(Math.floor((innerHeight - e.clientY) / 100)), 1));
+        })
+
+
+        addEventListener('touchmove', e => {
+            var touch = e.changedTouches[0];
+            sandbox.setUniform("uStepsX", Math.max(closest_odd( Math.floor((touch.clientX) / 25)), 1));
+            sandbox.setUniform("uStepsY", Math.max(closest_odd( Math.floor((innerHeight - touch.clientY) / 25)), 1));
         })
 
         addEventListener('keypress', e => {
@@ -64,9 +79,13 @@
     </script>
 
 
-    <style>
-        body {
+<style>
+        body, html, canvas {
             margin: 0;
+            position: fixed;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
         }
     </style>
 

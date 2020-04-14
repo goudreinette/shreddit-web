@@ -4,7 +4,8 @@ precision mediump float;
 uniform sampler2D u_tex0;
 uniform vec2 u_resolution;
 uniform vec2 u_tex0_size;
-uniform float uSteps;
+uniform float uStepsX;
+uniform float uStepsY;
 uniform float uTimes;
 
 vec2 shuffle(vec2 xy, vec2 p) {
@@ -19,7 +20,7 @@ void main()
 {
     vec2 uv = gl_FragCoord.xy/u_resolution;
     uv.y *= u_tex0_size.x/u_tex0_size.y;
-    uv = shuffle(uv, vec2(uSteps, uTimes));
-    uv = shuffle(uv, vec2(uTimes, uSteps));
+    uv = shuffle(uv, vec2(uStepsX, uTimes));
+    uv = shuffle(uv, vec2(uTimes, uStepsY));
     gl_FragColor = texture2D(u_tex0, uv);
 }
