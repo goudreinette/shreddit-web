@@ -1,51 +1,60 @@
 <title>Shreddit</title>
-<script type="text/javascript" src="https://rawgit.com/patriciogonzalezvivo/glslCanvas/master/dist/GlslCanvas.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
 
 <body>
-    <canvas  data-fragment-url="shreddit.frag" width="100vw" height="100vh"></canvas>
     <script>
-        const canvas = document.querySelector('canvas')
-        const sandbox = new GlslCanvas(canvas);
+        let s, canvas, img
+        let m = {x: 0, y: 0}
 
-        let mousePosition = [0,0]
+        function preload() {
+            s = loadShader(`shaders/shader.vert`, `shaders/shreddit.frag`);
+            img = loadImage('./dog.jpg')
+        }
 
-        addEventListener('load', resize)
-        addEventListener('resize', resize)
+        function setup() {
+            canvas = createCanvas(innerWidth, innerHeight, WEBGL);
+            noLoop()
+            pixelDensity(1)
+        }
 
         function resize() {
             canvas.width = innerWidth/2
             canvas.height = innerHeight/2
         }
 
-        setTimeout(() => {
-            sandbox.setUniform("u_tex0", "dog.jpg");
-            // Assign .5 to "uniform float u_brightness"
-            sandbox.setUniform("uStepsX",20.);
-            sandbox.setUniform("uStepsY",20.);
-            sandbox.setUniform("uTimes",1.);
-        }, 1)
+        function draw() {
+            shader(s)
+            s.setUniform("u_tex0", img)
+            s.setUniform("u_resolution", [innerWidth,innerHeight]);
+            s.setUniform("uStepsX", Math.max(closestOdd(Math.floor(m.x / 25)), 1));
+            s.setUniform("uStepsY", Math.max(closestOdd(Math.floor((innerHeight - m.y) / 25)), 1));
+            s.setUniform("uTimes", 1.)
+            rect(0,0,innerWidth,innerHeight)
+        }
 
-
-
+        function windowResized() {
+            resizeCanvas(innerWidth, innerHeight);
+        }
 
         addEventListener('mousemove', e => {
-            sandbox.setUniform("uStepsX", Math.max(closest_odd( Math.floor((e.clientX) / 25)), 1));
-            sandbox.setUniform("uStepsY", Math.max(closest_odd( Math.floor((innerHeight - e.clientY) / 25)), 1));
-            // sandbox.setUniform("uTimes", Math.max(closest_odd(Math.floor((innerHeight - e.clientY) / 100)), 1));
+            m.x = e.clientX
+            m.y = e.clientY
+            redraw()
         })
 
         addEventListener('touchmove', e => {
-            var touch = e.changedTouches[0];
-            sandbox.setUniform("uStepsX", Math.max(closest_odd( Math.floor((touch.clientX) / 25)), 1));
-            sandbox.setUniform("uStepsY", Math.max(closest_odd( Math.floor((innerHeight - touch.clientY) / 25)), 1));
+            const touch = e.changedTouches[0];
+            m.x = touch.clientX
+            m.y = touch.clientY
+            redraw()
         })
 
         addEventListener('keypress', e => {
             if (e.code == 'Space') {
                 var link = document.createElement('a');
-                link.download = 'filename.png';
+                link.download = 'shredded.png';
                 link.href = document.querySelector('canvas').toDataURL("image/png")
                 link.click();
             }
@@ -59,16 +68,17 @@
             e.preventDefault();
             const file = e.dataTransfer.items[0].getAsFile()
             const reader = new FileReader()
-            reader.readAsDataURL(file) 
+            reader.readAsDataURL(file)
             reader.onload = e => {
                 console.log(e.target.result)
-                sandbox.setUniform("u_tex0", e.target.result);
+                img = loadImage(e.target.result)
+                redraw()
             }
         })
 
 
         // Utils
-        function closest_odd(n) {
+        function closestOdd(n) {
             if (n % 2 == 0) {
                 return n
             } else {
@@ -78,7 +88,7 @@
     </script>
 
 
-<style>
+    <style>
         body, html, canvas {
             margin: 0;
             position: fixed;
@@ -87,5 +97,4 @@
             height: 100vh;
         }
     </style>
-
 </body>

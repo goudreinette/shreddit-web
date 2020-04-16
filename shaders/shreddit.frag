@@ -18,6 +18,7 @@ vec2 shuffle(vec2 xy, vec2 p) {
 void main()
 {
     vec2 uv = gl_FragCoord.xy/u_resolution;
+    uv.y = 1. - uv.y; // flip
     uv = shuffle(uv, vec2(uStepsX, uTimes));
     uv = shuffle(uv, vec2(uTimes, uStepsY));
     gl_FragColor = texture2D(u_tex0, uv);
