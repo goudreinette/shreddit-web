@@ -7,18 +7,19 @@
     <div class="hint">drag an image into the frame (jpg or png), <br> compose with the mouse and push te spacebar to download.</div>
 
     <script>
-        let s, canvas, img
+        let s, canvas, img, vid
         let m = {x: 0, y: 0}
 
         function preload() {
             s = loadShader(`shaders/shader.vert`, `shaders/shreddit.frag`);
             img = loadImage('./swim.jpg')
-
         }
 
         function setup() {
             canvas = createCanvas(innerWidth, innerHeight, WEBGL);
-            noLoop()
+            vid = createVideo('./imac.mov')
+            vid.hide()
+            // noLoop()
             pixelDensity(1)
 
         }
@@ -30,7 +31,7 @@
 
         function draw() {
             shader(s)
-            s.setUniform("u_tex0", img)
+            s.setUniform("u_tex0", vid)
             s.setUniform("u_resolution", [innerWidth,innerHeight]);
 
             if (frameCount == 1) {
@@ -49,13 +50,17 @@
             resizeCanvas(innerWidth, innerHeight);
         }
 
+        function mousePressed() {
+            vid.loop()
+        }
+
         addEventListener('mousemove', e => {
             m.x = e.clientX
             m.y = e.clientY
             redraw()
         })
 
-        addEventListener('touchmove', e => {
+        document.body.addEventListener('touchmove', e => {
             const touch = e.changedTouches[0];
             m.x = touch.clientX
             m.y = touch.clientY
@@ -105,6 +110,7 @@
         }
 
         body, html {
+            touch-action: auto;
             margin: 0;
             position: fixed;
             padding: 0;
